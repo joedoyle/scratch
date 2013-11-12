@@ -8,7 +8,7 @@
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
-(fringe-mode "none")
+;;(fringe-mode "none")
 
 (setq make-backup-files nil)
 (setq visible-bell t)
@@ -40,7 +40,7 @@
 
 (setq make-backup-files nil)
 
-;;(set-face-attribute 'default nil :font "xos4 Terminus")
+;;(set-face-attribute 'default nil :font "Terminus-10")
 ;;(set-face-attribute 'default nil :height 90)
 
 (setq Info-default-directory-list
@@ -170,14 +170,21 @@
 
 (put 'narrow-to-region 'disabled nil)
 
-(cond (window-system
-       (setq default-frame-alist
-             '(
-               (foreground-color . "#c0c0c0")
-               (background-color . "#000000")
-               (cursor-color . "grey80")
-               ))
-       ))
+;; (cond (window-system
+;;        (setq default-frame-alist
+;;              '(
+;;                (foreground-color . "#c0c0c0")
+;;                (background-color . "#000000")
+;;                (cursor-color . "grey80")
+;;                ))
+;;        ))
+
+(setq default-frame-alist
+      '(
+        (foreground-color . "#c0c0c0")
+        (background-color . "#000000")
+        (cursor-color . "grey80")
+        ))
 
 (windmove-default-keybindings)
 
