@@ -1,9 +1,18 @@
 (setq-default indent-tabs-mode 'nil)
 (setq-default tab-width 4)
 
+(setq ido-enable-flex-matching t)
+(setq ido-everywhere t)
+(ido-mode 1)
+
+(add-to-list 'load-path "/home/users/jdoyle/.emacs.d/auto-complete/")
+(require 'auto-complete-config)
+(add-to-list 'ac-dictionary-directories "/home/users/jdoyle/.emacs.d/auto-complete/ac-dict")
+(ac-config-default)
+
 (column-number-mode 1)
 
-(iswitchb-mode)
+;;(iswitchb-mode)
 
 (menu-bar-mode -1)
 (tool-bar-mode -1)
