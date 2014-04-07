@@ -5,10 +5,16 @@
 (setq ido-everywhere t)
 (ido-mode 1)
 
-(add-to-list 'load-path "/home/users/jdoyle/.emacs.d/auto-complete/")
-(require 'auto-complete-config)
-(add-to-list 'ac-dictionary-directories "/home/users/jdoyle/.emacs.d/auto-complete/ac-dict")
-(ac-config-default)
+(if (require 'auto-complete-config "auto-complete-config.el" t)
+      (progn
+        ((add-to-list 'ac-dictionary-directories "/home/users/jdoyle/.emacs.d/auto-complete/ac-dict")
+         (ac-config-default))))
+
+
+;; (add-to-list 'load-path "/home/users/jdoyle/.emacs.d/auto-complete/")
+;; (require 'auto-complete-config "auto-complete-config.el" t)
+;; (add-to-list 'ac-dictionary-directories "/home/users/jdoyle/.emacs.d/auto-complete/ac-dict")
+;; (ac-config-default)
 
 (column-number-mode 1)
 
@@ -42,7 +48,7 @@
 
 ;;(require 'ecb)
 
-(require 'xcscope)
+(require 'xcscope "xcscope.el" t)
 
 ;(setq load-path (append load-path '("/net/leo/workspace1/jdoyle/xref/emacs")))
 ;(load "xrefin.el")
