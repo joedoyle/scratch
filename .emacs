@@ -214,6 +214,25 @@
 (global-set-key [f11] 'toggle-fullscreen)
 (global-set-key (kbd "C-x C-r") (lambda () (interactive) (revert-buffer t t)))
 
+(defun select-window-index (ix)
+  "Select a window based on index"
+  (select-window
+   (get-window-with-predicate
+    (lambda (window)
+      (let ((window-coords (window-edges window)))
+        (let ((left-coord (car window-coords))
+              (top-coord (car (cdr window-coords))))
+          (and (eq left-coord 0) (eq top-coord 0)))))))
+  (other-window ix))
+
+(global-set-key
+ (kbd "M-g w")
+ (lambda ()
+   "prompt for a window index, and then select that window"
+   (interactive)
+   (let ((ix (read-from-minibuffer "index: ")))
+   (select-window-index (string-to-number ix)))))
+
 (global-set-key
  (kbd "C-x \\")
  (lambda () (interactive)
