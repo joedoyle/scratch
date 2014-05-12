@@ -55,28 +55,6 @@ struct decl_comparator
 
 typedef std::multiset<tree, decl_comparator> decl_set;
 
-struct Namespace;
-using NamespaceChildren = std::map<std::string, Namespace>;
-struct Namespace
-{
-    NamespaceChildren m_children;
-};
-
-
-Namespace g_namespace;
-
-
-// struct ParseContext;
-// using SubParseContexts = std::multiset<int, ParseContext>
-
-// struct ParseContext
-// {
-//     bool Descend (int tree_code, const tree* tree, int level);
-//     SubParseContexts m_SubParseContexts;
-
-//     static ParseContext g_context;
-// };
-
 
 const char* indent_spaces =
     "                                                                       "
@@ -254,98 +232,196 @@ collect (tree ns, decl_set& set)
 // }
 
 
-std::string
-decl_scope (tree decl, Namespace* ns)
+tree build_scope_string (tree scope, std::string& s)
 {
-    std::string s, tmp;
-    std::vector<std::string> namespaces;
+    if (TREE_CODE(scope) == RECORD_TYPE ||
+        TREE_CODE(scope) == ENUMERAL_TYPE)
+    {
+        if (TYPE_NAME (scope))
+            scope = TYPE_NAME (scope);
+        //tmp_scope = TYPE_CANONICAL(scope);
+        else
+            scope = TYPE_NAME (TYPE_CANONICAL(scope));
+        // if (tmp_scope)
+        //     scope
+    }
+    tree id = 0;
+    if (scope)
+        id = DECL_NAME (scope);
+
+    const char* id_ptr = (id != 0 ? IDENTIFIER_POINTER (id) : "<unnamed>");
+    id_ptr = id_ptr ? id_ptr : "<nullptr>";
+
+    int name_len = strlen (id_ptr);
+    while (name_len > 0 && id_ptr[name_len-1] == ' ') --name_len;
+
+    // namespaces.push_back (id_ptr);
+
+    std::string tmp = "::";
+    tmp += std::string (id_ptr, name_len);
+    tmp += s;
+    s.swap (tmp);
+
+    return scope;
+}
+
+
+std::string
+decl_scope (tree decl)
+{
+    std::string s;
 
     for (tree scope (CP_DECL_CONTEXT (decl));
          scope != global_namespace && scope;
          scope = CP_DECL_CONTEXT (scope))
     {
-        g_body = scope;
-        if (TREE_CODE(scope) == RECORD_TYPE ||
-            TREE_CODE(scope) == ENUMERAL_TYPE)
-        {
-            if (TYPE_NAME (scope))
-                scope = TYPE_NAME (scope);
-            //tmp_scope = TYPE_CANONICAL(scope);
-            else
-                scope = TYPE_NAME (TYPE_CANONICAL(scope));
-            // if (tmp_scope)
-            //     scope
-        }
-        tree id = 0;
-        if (scope)
-            id = DECL_NAME (scope);
-
-        const char* id_ptr = (id != 0 ? IDENTIFIER_POINTER (id) : "<unnamed>");
-        id_ptr = id_ptr ? id_ptr : "<nullptr>";
-
-        namespaces.push_back (id_ptr);
-
-        tmp = "::";
-        tmp += id_ptr;
-        tmp += s;
-        s.swap (tmp);
+        scope = build_scope_string (scope, s);
         if (!scope)
             break;
     }
-
-    // for (auto ritr = namespaces.rbegin(); ritr != namespaces.rend(); ++ritr)
-    // {
-    //     auto ns_itr = ns->m_children.find (*ritr);
-    //     if (ns_itr == ns->m_children.end())
-    //         ns_itr = ns->m_children.insert (NamespaceChildren::value_type(*ritr, Namespace())).first;
-
-    //     ns = &ns_itr->second;
-    // }
 
     return s;
 }
 
 
-void
-print_decl (tree decl, Namespace* ns, std::ostream& ostr)
+std::string
+type_scope (tree decl)
 {
-    int tc (TREE_CODE (decl));
-    tree id (DECL_NAME (decl));
-    const char* name (id ? IDENTIFIER_POINTER (id) : "<unnamed>");
+    std::string s;
 
-    int name_len = strlen (name);
-    while (name[name_len-1] == ' ' && name_len > 0) --name_len;
+    for (tree scope (CP_TYPE_CONTEXT (decl));
+         scope != global_namespace && scope;
+         scope = CP_TYPE_CONTEXT (scope))
+    {
+        scope = build_scope_string (scope, s);
+        if (!scope)
+            break;
+    }
 
-    std::string scope_name = decl_scope (decl, ns);
-    ostr << tree_code_name[tc] << " "
-         << scope_name << "::";
-
-    ostr.write (name, name_len);
+    return s;
 }
+
+
+void print_type (tree type, std::ostream& ostr);
+
 
 template <class CallbackT>
 void
-print_decl (tree decl, Namespace* ns, std::ostream& ostr, CallbackT cb)
+print_decl (tree decl, std::ostream& ostr, CallbackT cb)
 {
-    int tc (TREE_CODE (decl));
+    // int tc (TREE_CODE (decl));
     tree id (DECL_NAME (decl));
     const char* name (id ? IDENTIFIER_POINTER (id) : "<unnamed>");
 
-    int name_len = strlen (name);
-    while (name[name_len-1] == ' ' && name_len > 0) --name_len;
+    if (!name) name = "null_name";
 
-    std::string scope_name = decl_scope (decl, ns);
-    ostr << tree_code_name[tc] << " "
-         << scope_name << "::";
+    int name_len = strlen (name);
+    while (name_len > 0 && name[name_len-1] == ' ') --name_len;
+
+    std::string scope_name = decl_scope (decl);
+    ostr << scope_name;
+    // if (TYPE_TEMPLATE_INFO(decl))
+    if (DECL_LANG_SPECIFIC(decl) && DECL_TEMPLATE_INFO(decl))
+    {
+        g_body = decl;
+        tree ti = DECL_TEMPLATE_INFO(decl);
+        ostr << '<';
+        bool first = true;
+        tree tparm = TI_ARGS(ti);
+        //g_body = tparm;
+        while (tparm != 0)
+        {
+            // tree tree_v = TREE_CODE(tparm);
+            for (int i = 0; i < TREE_VEC_LENGTH(tparm); ++i)
+            {
+                if (!first)
+                    ostr << ',';
+
+                first = false;
+                print_type (TREE_VEC_ELT (tparm, i), ostr);
+//                print_tree (TREE_VEC_ELT (decl,i), level+1, ptc);
+            }
+
+            tparm = TREE_CHAIN (tparm);
+            g_body = tparm;
+        }
+        ostr << '>';
+    }
+
+    ostr << "::";
     ostr.write (name, name_len);
 
     cb (scope_name, name);
-    // if (ptc.call_refs() &&
-    //     strncmp (scope_name.c_str(), "fastdelegate", 12) == 0 &&
-    //     strncmp (name, "operator", 8) == 0)
-    // {
-    //     ptc.m_ostr << 
-    // }
+
+    // TREE_CONSTANT = const ?
+    // or is it TYPE_VOLATILE, or TYPE_CONSTANT?
+}
+
+
+void
+print_decl (tree decl, std::ostream& ostr)
+{
+    print_decl (decl, ostr,
+                [] (const std::string&, const char*) { } );
+}
+
+void print_type (tree type, std::ostream& ostr)
+{
+    g_body = type;
+    if (TREE_CODE (type) == POINTER_TYPE)
+    {
+        // ostr << "_recursing_";
+        // asm volatile ("int3");
+        print_type (TREE_TYPE(type), ostr);
+        ostr << '*';
+    }
+    else if (TREE_CODE (type) == REFERENCE_TYPE)
+    {
+        // ostr << "_recursing_";
+        // asm volatile ("int3");
+        print_type (TREE_TYPE(type), ostr);
+        ostr << '&';
+    }
+    else if (RECORD_OR_UNION_TYPE_P (type))
+    {
+        tree type_name = TYPE_NAME (type);
+        if (!type_name)
+        {
+            ostr << "_NULL_type_name_";
+        }
+        else if (TREE_CODE(type_name) == TYPE_DECL)
+        {
+            print_decl (type_name, ostr);
+        }
+        else if (TREE_CODE(type_name) == IDENTIFIER_NODE)
+        {
+            ostr << type_scope (type) << "::";
+            // g_body = id;
+            // asm volatile ("int3");
+
+            // tree id (DECL_NAME (type_name));
+            const char* name (type_name ? IDENTIFIER_POINTER (type_name) :
+                              "<unnamed>");
+            if (!name) name = "null_name";
+            int name_len = strlen (name);
+            while (name_len > 0 && name[name_len-1] == ' ') --name_len;
+            ostr.write (name, name_len);
+        }
+    }
+    else if (TREE_CODE(type) == INTEGER_TYPE)
+    {
+        auto ostrflags = ostr.flags();
+        ostr << "_int_" << std::hex
+             << TREE_INT_CST_HIGH (TYPE_MIN_VALUE(type))
+             << TREE_INT_CST_LOW  (TYPE_MIN_VALUE(type))
+             << '_' << TYPE_PRECISION(type);
+        ostr.flags (ostrflags);
+    }
+    else
+    {
+        int tc (TREE_CODE (type));
+        ostr << "_unexpected_" << tree_code_name[tc];
+    }
 }
 
 
@@ -390,13 +466,34 @@ void print_tree (tree decl, int level, PrintTreeContext &ptc)
         if (ptc.trace())
         {
             ptc.m_ostr.write (indent_spaces, indent_cnt * level);
-            print_decl (decl, &g_namespace, ptc.m_ostr);
+            ptc.m_ostr << "decl_use_template " << (DECL_USE_TEMPLATE(decl))
+                       << std::endl;
+            ptc.m_ostr.write (indent_spaces, indent_cnt * level);
+            ptc.m_ostr << "decl_templ_parm_p " << (DECL_TEMPLATE_PARM_P(decl))
+                       << std::endl;
+            ptc.m_ostr.write (indent_spaces, indent_cnt * level);
+            ptc.m_ostr << "decl_abstract_origin "
+                       << (DECL_ABSTRACT_ORIGIN(decl))
+                       << std::endl;
+            ptc.m_ostr.write (indent_spaces, indent_cnt * level);
+            ptc.m_ostr << "decl_template_instantiated "
+                       << (DECL_TEMPLATE_INSTANTIATED(decl))
+                       << std::endl;
+            ptc.m_ostr.write (indent_spaces, indent_cnt * level);
+            print_decl (decl, ptc.m_ostr);
             ptc.m_ostr << " " << DECL_SOURCE_FILE (decl) << ":"
                        << DECL_SOURCE_LINE (decl) << std::endl;
             for (tree parm = DECL_ARGUMENTS(decl);
                  parm != 0; parm = TREE_CHAIN (parm))
             {
+                ptc.m_ostr.write (indent_spaces, indent_cnt * (level+1));
+                ptc.m_ostr << "decl_templ_parm_p param " << (DECL_TEMPLATE_PARM_P(parm))
+                           << std::endl;
                 print_tree (parm, level+1, ptc);
+            }
+            if (DECL_TEMPLATE_INFO(decl))
+            {
+                print_tree (DECL_TEMPLATE_INFO(decl), level+1, ptc);
             }
         }
 
@@ -405,15 +502,23 @@ void print_tree (tree decl, int level, PrintTreeContext &ptc)
             if (ptc.call_refs())
             {
                 ptc.m_ostr << (ptc.m_insideFunction ? "REF ": "DEF ");
-                print_decl (decl, &g_namespace, ptc.m_ostr);
+                print_decl (decl, ptc.m_ostr);
 
-                tree parm_list = DECL_ARGUMENTS(decl);
-
-                if (parm_list)
-                    ptc.m_ostr << ',' << list_length(parm_list);
-
+                for (tree parm = DECL_ARGUMENTS(decl);
+                     parm != 0; parm = TREE_CHAIN (parm))
+                {
+                    ptc.m_ostr << ',';
+                    print_type (TREE_TYPE(parm), ptc.m_ostr);
+                }
                 ptc.m_ostr << ' ' << DECL_SOURCE_FILE (decl) << ':'
                            << DECL_SOURCE_LINE (decl);
+
+                if (strcmp(DECL_SOURCE_FILE (decl), "Tools/FastPathFill/wtf.cpp") == 0 &&
+                    DECL_SOURCE_LINE (decl) == 66)
+                {
+                    g_body = decl;
+                    asm volatile ("int3");
+                }
 
                 if (!ptc.m_expressionLocs.empty())
                     ptc.m_ostr << ' ' << ptc.m_expressionLocs.back();
@@ -428,18 +533,28 @@ void print_tree (tree decl, int level, PrintTreeContext &ptc)
         {
             ptc.m_ostr << "REF ";
             int mode = 0;
-            print_decl (decl, &g_namespace, ptc.m_ostr,
+            print_decl (decl, ptc.m_ostr,
                         std::bind (&check_if_delegate,
                                    std::placeholders::_1,
                                    std::placeholders::_2,
                                    ptc, std::ref (mode)));
 
-            tree parm_list = DECL_ARGUMENTS(decl);
-            if (parm_list)
-                ptc.m_ostr << ',' << list_length(parm_list);
+            for (tree parm = DECL_ARGUMENTS(decl);
+                 parm != 0; parm = TREE_CHAIN (parm))
+            {
+                ptc.m_ostr << ',';
+                print_type (TREE_TYPE (parm), ptc.m_ostr);
+            }
 
             ptc.m_ostr << ' ' << DECL_SOURCE_FILE (decl) << ':'
                        << DECL_SOURCE_LINE (decl);
+
+            if (strcmp(DECL_SOURCE_FILE (decl), "Tools/FastPathFill/wtf.cpp") == 0 &&
+                DECL_SOURCE_LINE (decl) == 66)
+            {
+                g_body = decl;
+                asm volatile ("int3");
+            }
 
             if (!ptc.m_expressionLocs.empty())
                 ptc.m_ostr << ' ' << ptc.m_expressionLocs.back();
@@ -463,40 +578,11 @@ void print_tree (tree decl, int level, PrintTreeContext &ptc)
         if (ptc.trace())
         {
             ptc.m_ostr.write (indent_spaces, indent_cnt * level);
-            print_decl (decl, &g_namespace, ptc.m_ostr);
+            print_decl (decl, ptc.m_ostr);
             ptc.m_ostr << " " << DECL_SOURCE_FILE (decl) << ":"
                        << DECL_SOURCE_LINE (decl) << std::endl;
         }
 
-        // if (DECL_SAVED_TREE(decl) && level == 0)
-        // {
-        //     if (ptc.call_refs())
-        //     {
-        //         ptc.m_ostr << (ptc.m_insideFunction ? "REF ": "DEF ");
-        //         print_decl (decl, &g_namespace, ptc.m_ostr);
-        //         // ptc.m_ostr << ' ' << ExprLoc(decl);
-        //         if (!ptc.m_expressionLocs.empty())
-        //             ptc.m_ostr << ' ' << ptc.m_expressionLocs.back();
-        //         ptc.m_ostr << std::endl;
-        //     }
-        //     tree init_stmt = DECL_SAVED_TREE(decl);
-        //     // ptc.m_insideFunction = true;
-        //     print_tree (init_stmt, level+1, ptc);
-        //     // ptc.m_insideFunction = false;
-        // }
-        // else if (/*ptc.m_insideFunction &&*/ ptc.call_refs())
-        // {
-        //     ptc.m_ostr << "REF ";
-        //     print_decl (decl, &g_namespace, ptc.m_ostr);
-        //     // ptc.m_ostr << ' ' << ExprLoc(decl);
-        //     if (!ptc.m_expressionLocs.empty())
-        //         ptc.m_ostr << ' ' << ptc.m_expressionLocs.back();
-        //     ptc.m_ostr << std::endl;
-        // }
-
-        // std::cout.write (indent_spaces, indent_cnt * level);
-        // print_decl (decl, &g_namespace);
-        // std::cout << std::endl;
         return;
     }
 
@@ -518,6 +604,41 @@ void print_tree (tree decl, int level, PrintTreeContext &ptc)
             {
                 tree top = TREE_OPERAND (*ptree, i);
                 print_tree (top, level+1, ptc);
+            }
+        }
+        return;
+    }
+
+    if (TREE_CODE(decl) == TEMPLATE_INFO)
+    {
+        if (ptc.trace())
+        {
+            ptc.m_ostr.write (indent_spaces, indent_cnt * level);
+            ptc.m_ostr << "ti_template" << std::endl;
+            print_tree (TI_TEMPLATE(decl), level+1, ptc);
+
+            ptc.m_ostr.write (indent_spaces, indent_cnt * level);
+            ptc.m_ostr << "template_args" << std::endl;
+            for (tree parm = TI_ARGS(decl);
+                 parm != 0; parm = TREE_CHAIN (parm))
+            {
+                print_tree (parm, level+1, ptc);
+            }
+        }
+        return;
+    }
+
+    if (TREE_CODE(decl) == TREE_VEC)
+    {
+        if (ptc.trace())
+        {
+            ptc.m_ostr.write (indent_spaces, indent_cnt * level);
+            ptc.m_ostr << "tree_vec:" << std::endl;
+            for (int i = 0; i < TREE_VEC_LENGTH(decl); ++i)
+            {
+                ptc.m_ostr.write (indent_spaces, indent_cnt * level);
+                ptc.m_ostr << i << ':' << std::endl;
+                print_tree (TREE_VEC_ELT (decl,i), level+1, ptc);
             }
         }
         return;
@@ -609,9 +730,9 @@ void print_tree (tree decl, int level, PrintTreeContext &ptc)
                                     if (delegate_decl_v && TREE_OPERAND (delegate_decl_v, 1))
                                     {
                                         std::ostringstream ostr;
-                                        print_decl (delegate_decl_v, &g_namespace, ostr);
+                                        print_decl (delegate_decl_v, ostr);
                                         ostr << " " << DECL_SOURCE_FILE (delegate_decl_v) << ":"
-                                             << DECL_SOURCE_LINE (delegate_decl_v) << std::endl;
+                                             << DECL_SOURCE_LINE (delegate_decl_v);
 
                                         if (!ptc.m_delegateVariable.empty())
                                             ptc.m_delegateVariable += " append ";
@@ -704,7 +825,7 @@ void print_tree (tree decl, int level, PrintTreeContext &ptc)
         {
             ptc.m_ostr.write (indent_spaces, indent_cnt * level);
             ptc.m_ostr << tree_code_name[TREE_CODE(decl)] << ' ';
-            print_decl (PTRMEM_CST_MEMBER(decl), &g_namespace, ptc.m_ostr);
+            print_decl (PTRMEM_CST_MEMBER(decl), ptc.m_ostr);
             ptc.m_ostr << " " << DECL_SOURCE_FILE (PTRMEM_CST_MEMBER(decl))
                        << ":" << DECL_SOURCE_LINE (PTRMEM_CST_MEMBER(decl));
             ptc.m_ostr << ' ';
@@ -714,7 +835,7 @@ void print_tree (tree decl, int level, PrintTreeContext &ptc)
         if (ptc.m_delegateSearch == 1)
         {
             std::ostringstream ostr;
-            print_decl (PTRMEM_CST_MEMBER(decl), &g_namespace, ostr);
+            print_decl (PTRMEM_CST_MEMBER(decl), ostr);
             ostr << " " << DECL_SOURCE_FILE (PTRMEM_CST_MEMBER(decl))
                  << ":" << DECL_SOURCE_LINE (PTRMEM_CST_MEMBER(decl));
             assert (ptc.m_delegateTargetFunction.empty());
@@ -741,6 +862,33 @@ void print_tree (tree decl, int level, PrintTreeContext &ptc)
 
         return;
     }
+
+    if (TREE_CODE(decl) == INTEGER_TYPE)
+    {
+        if (ptc.trace())
+        {
+            auto ostrflags = ptc.m_ostr.flags();
+
+            ptc.m_ostr.write (indent_spaces, indent_cnt * level);
+            ptc.m_ostr << tree_code_name[TREE_CODE(decl)] << ' '
+                       << ExprLoc(decl) << ' '
+                       << std::hex
+                       << TREE_INT_CST_HIGH (TYPE_MIN_VALUE(decl))
+                       << TREE_INT_CST_LOW  (TYPE_MIN_VALUE(decl))
+                       << ' '
+                       << TREE_INT_CST_HIGH (TYPE_MAX_VALUE(decl))
+                       << TREE_INT_CST_LOW  (TYPE_MAX_VALUE(decl))
+                       << std::endl;
+            ptc.m_ostr.flags (ostrflags);
+
+            print_tree (TYPE_MIN_VALUE(decl), level+1, ptc);
+            print_tree (TYPE_MAX_VALUE(decl), level+1, ptc);
+
+            // print_tree (TYPE_PRECISION(decl), level+1, ptc);
+        }
+        return;
+    }
+
 
     // using EXPR_P() causes infinite recursion
     if (EXPRESSION_CLASS_P(decl) ||
@@ -771,19 +919,6 @@ void print_tree (tree decl, int level, PrintTreeContext &ptc)
     }
 
     return;
-}
-
-
-const char* dump_spaces= "                                               ";
-
-void dump_namespace (Namespace& ns, int depth)
-{
-    for (auto &ns_child: ns.m_children)
-    {
-        std::cout.write (dump_spaces, depth*3);
-        std::cout << ns_child.first << std::endl;
-        dump_namespace (ns_child.second, depth+1);
-    }
 }
 
 
@@ -878,8 +1013,8 @@ plugin_init (plugin_name_args* info,
     if (r == 0)
     {
         g_printTreeContext =
-            new PrintTreeContext {TreePrintOptions::ALL, ofstr};
-            // new PrintTreeContext {TreePrintOptions::ALL, std::cout};
+            new PrintTreeContext {TreePrintOptions::CALL_REFS, ofstr};
+        //new PrintTreeContext {TreePrintOptions::ALL, ofstr};
 
         // Disable assembly output.
         //
