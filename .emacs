@@ -23,7 +23,7 @@
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
-;;(fringe-mode "none")
+(fringe-mode -1)
 
 (setq make-backup-files nil)
 (setq visible-bell t)
@@ -57,6 +57,8 @@
 
 ;;(set-face-attribute 'default nil :font "Terminus-10")
 ;;(set-face-attribute 'default nil :height 90)
+
+(setq font-use-system-font t)
 
 (setq Info-default-directory-list
       (cons "~/emacs-20.4/info" Info-default-directory-list))
@@ -147,6 +149,66 @@
      )
   "Sun Trading C++ Style")
 
+(defconst nebula-c++-style
+  '(; The simplest and most used kind of "offset" setting in 
+                                        ; c-offsets-alist is in terms of multiples of c-basic-offset
+    (c-basic-offset             . 4)
+    (c-max-one-liner-length     . 160)
+    (c-tab-always-indent        . 4)
+    (c-comment-only-line-offset . 4)
+                                        ; This variable is an association list which maps syntactic symbols to 
+                                        ; lists of places to insert a newline.
+                                        ; http://cc-mode.sourceforge.net/html-manual/Hanging-Braces.html
+    (c-hanging-braces-alist     . ((namespace-open)
+                                   (namespace-close)
+                                   (innamespace)
+                                   (class-open after)
+                                   (inline-open after)
+                                   (defun-open after)
+                                   (block-open) ; Statement block open brace.
+                                   (brace-list-open after) ; Open brace of an enum or static array list.
+                                   (brace-entry-open) ; Subsequent lines in an enum or static array list where the line begins with an open brace.
+                                   (statement-case-open after) ; The first line in a case block that starts with a brace.
+                                   (substatement-open after) ; The brace that opens a substatement block.
+                                   (statement-block-intro)
+                                   (statement)
+                                   (access-label) ; C++ access control label.
+                                   (else-clause after) ; The else line of an if-else construct.
+                                   (defun-block-intro after)
+                                   (catch-clause after)
+                                   (block-close . c-snug-do-while)
+                                   (member-init-intro)))
+    (c-hanging-colons-alist     . ((member-init-intro before)
+                                   (inher-intro)
+                                   (case-label after)
+                                   (label after)
+                                   (access-label after)))
+                                        ; Clean-ups are mechanisms which remove (or exceptionally, add) 
+                                        ; whitespace in specific circumstances and are complementary to 
+                                        ; colon and brace hanging. 
+    (c-cleanup-list             . (brace-else-brace
+                                   brace-elseif-brace
+                                   brace-catch-brace
+                                        ; empty-defun-braces
+                                   defun-close-semi
+                                   list-close-comma
+                                   scope-operator))
+                                        ; c-offsets-alist the principal variable for configuring indentation.
+                                        ; These are passed to c-set-offset.
+    (c-offsets-alist            .
+                                ((innamespace . [0])
+                                 (namespace-open                . -)
+                                 (namespace-close               . [0])
+                                 (inline-open . 0)
+                                 (substatement-open . 0)
+                                 (block-open        . 0)
+                                 (comment-intro      . 0)
+                                 (label . 0)
+                                 (case-label . +)
+                                 ))
+    (c-echo-syntactic-information-p . t))
+  "Nebula C++ Style")
+
 (defun my-c-mode-common-hook ()
   (c-add-style "sun" sun-c-style t)
   (c-toggle-hungry-state 1)
@@ -194,11 +256,19 @@
 ;;                ))
 ;;        ))
 
+;;(set-default-font "Terminus-10")
+
 (setq default-frame-alist
       '(
         (foreground-color . "#c0c0c0")
         (background-color . "#000000")
         (cursor-color . "grey80")
+        (font . "Terminus-10")
+        (left-fringe . 0)
+        (right-fringe . 0)
+        (menu-bar-lines . 0)
+        (tool-bar-lines . 0)
+        (vertical-scroll-bars . nil)
         ))
 
 (windmove-default-keybindings)
@@ -244,3 +314,23 @@
             (delete-window up-win))))))
 
 (global-set-key (kbd "C-c s d") 'semantic-ia-fast-jump)
+
+
+(defun bfc-build-trade-list ()
+  (interactive)
+  (kill-buffer "*alltrades*")
+  (call-process "alltrades" nil "*alltrades*")
+  (set-buffer (get-buffer "*alltrades*"))
+  (goto-char (point-min))
+  (setq bfc-trade-list '())
+  (let ((trade-info nil))
+    (while (not (eobp))
+      (setq trade-info (split-string (thing-at-point 'line) "[,\n]"))
+      (add-to-list 'bfc-trade-list `(,(car trade-info) . (,trade-info)))
+      (forward-line))))
+
+
+(defun bfc-goto-trade ()
+  (interactive)
+  (let ((trade-info (car (cdr (assoc (completing-read "Trade: " bfc-trade-list) bfc-trade-list)))))
+    (find-file (format "/ssh:orion@%s:%s" (car (cdr trade-info)) (car (cdr (cdr trade-info)))))))
