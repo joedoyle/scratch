@@ -382,7 +382,8 @@ void print_type (tree type, std::ostream& ostr)
         print_type (TREE_TYPE(type), ostr);
         ostr << '&';
     }
-    else if (RECORD_OR_UNION_TYPE_P (type))
+    else if (RECORD_OR_UNION_TYPE_P (type) ||
+             TREE_CODE(type) == ENUMERAL_TYPE)
     {
         tree type_name = TYPE_NAME (type);
         if (!type_name)
@@ -439,7 +440,15 @@ int check_if_delegate (
         else if (name[8] == '(' && name[9] == ')' && name[10] == '\0')
             mode = 2;
     }
-
+    else if (
+        strncmp (scope_name.c_str(), "::nebula::fun::FastDelegateNew", 30) == 0 &&
+        strncmp (name.c_str(), "operator", 8) == 0)
+    {
+        if (name[8] == '=' && name[9] == '\0')
+            mode = 1;
+        else if (name[8] == '(' && name[9] == ')' && name[10] == '\0')
+            mode = 2;
+    }
     // ptc.m_ostr << " scope_name=\"" << scope_name
     //            << "\" name=\"" << name
     //            << "\" " << mode << ' ';
@@ -699,7 +708,6 @@ void print_tree (tree decl, int level, PrintTreeContext &ptc)
                        << ExprLoc(decl) << std::endl;
         }
 
-        bool isFastDelegate = false;
         int priorDelegateSearch = 0;
         for (int i = 0; i < TREE_OPERAND_LENGTH(decl); ++i)
         {

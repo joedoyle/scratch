@@ -1,9 +1,9 @@
 (setq-default indent-tabs-mode 'nil)
 (setq-default tab-width 4)
 
-(setq ido-enable-flex-matching t)
-(setq ido-everywhere t)
-(ido-mode 1)
+;; (setq ido-enable-flex-matching t)
+;; (setq ido-everywhere t)
+;; (ido-mode 1)
 
 (if (require 'auto-complete-config "auto-complete-config.el" t)
       (progn
@@ -320,7 +320,7 @@
   (interactive)
   (kill-buffer "*alltrades*")
   (call-process "alltrades" nil "*alltrades*")
-  (set-buffer (get-buffer "*alltrades*"))
+  (set-buffer (get-buffer-create "*alltrades*"))
   (goto-char (point-min))
   (setq bfc-trade-list '())
   (let ((trade-info nil))
