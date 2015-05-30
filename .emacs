@@ -1,4 +1,4 @@
-(setq-default indent-tabs-mode 'nil)
+(setq-default indent-tabs-m/de 'nil)
 (setq-default tab-width 4)
 
 ;; (setq ido-enable-flex-matching t)
@@ -17,8 +17,13 @@
 ;; (ac-config-default)
 
 (column-number-mode 1)
+(desktop-save-mode 1)
 
 ;;(iswitchb-mode)
+
+;;(require 'jabber)
+;;(setq jabber-username 'jdoyle')
+;;(setq jabber-server 'jabber-ch-01')
 
 (menu-bar-mode -1)
 (tool-bar-mode -1)
@@ -48,7 +53,14 @@
 
 ;;(require 'ecb)
 
-(require 'xcscope "xcscope.el" t)
+(when (> emacs-major-version 23)
+        (require 'package)
+        (package-initialize)
+        (add-to-list 'package-archives
+                     '("melpa" . "http://melpa.milkbox.net/packages/")
+                     'APPEND))
+
+(require 'xcscope "/usr/share/cscope/xcscope.el" t)
 
 ;(setq load-path (append load-path '("/net/leo/workspace1/jdoyle/xref/emacs")))
 ;(load "xrefin.el")
@@ -250,7 +262,7 @@
 ;; (cond (window-system
 ;;        (setq default-frame-alist
 ;;              '(
-;;                (foreground-color . "#c0c0c0")
+;;                (foreground-color . "#c1c0c0")
 ;;                (background-color . "#000000")
 ;;                (cursor-color . "grey80")
 ;;                ))
@@ -260,10 +272,10 @@
 
 (setq default-frame-alist
       '(
-        (foreground-color . "#c0c0c0")
+        (foreground-color . "#ffffff")
         (background-color . "#000000")
         (cursor-color . "grey80")
-        (font . "Terminus-10")
+        (font . "Terminus-12")
         (left-fringe . 0)
         (right-fringe . 0)
         (menu-bar-lines . 0)
@@ -334,3 +346,28 @@
   (interactive)
   (let ((trade-info (car (cdr (assoc (completing-read "Trade: " bfc-trade-list) bfc-trade-list)))))
     (find-file (format "/ssh:orion@%s:%s" (car (cdr trade-info)) (car (cdr (cdr trade-info)))))))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(jabber-account-list (quote (("jdoyle@allstontrading.com" (:network-server . "jabber-ch-01") (:connection-type . ssl)))))
+ '(jabber-alert-presence-hooks (quote (jabber-presence-tmux)))
+ '(mew-imap-inbox-folder "/home/jdoyle/AllstonGmail/INBOX")
+ '(mew-mailbox-type (quote mbox))
+ '(mew-thread-indent-strings ["┣" "┗" "┃" " "]))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(jabber-activity-personal-face ((t (:foreground "deep sky blue" :box (:line-width 2 :color "grey75" :style released-button) :weight bold))))
+ '(jabber-chat-prompt-foreign ((t (:foreground "orange red" :weight normal))))
+ '(jabber-chat-prompt-local ((t (:foreground "dark orange" :weight normal))))
+ '(jabber-rare-time-face ((t (:foreground "dim gray" :underline t))))
+ '(jabber-roster-user-away ((t nil)))
+ '(jabber-roster-user-dnd ((t nil)))
+ '(jabber-roster-user-error ((t nil)))
+ '(jabber-roster-user-offline ((t nil)))
+ '(jabber-roster-user-online ((t (:foreground "dark orange" :slant normal :weight bold))))
+ '(jabber-roster-user-xa ((t nil))))
