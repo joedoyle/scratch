@@ -34,4 +34,4 @@ shopt -s histappend
 
 export LESS=FSRX
 
-export PATH=/opt/centos/devtoolset-1.1/root/usr/bin:${PATH}
+# export PATH=/opt/centos/devtoolset-3.1/root/usr/bin:${PATH}

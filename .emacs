@@ -275,7 +275,7 @@
         (foreground-color . "#ffffff")
         (background-color . "#000000")
         (cursor-color . "grey80")
-        (font . "Terminus-12")
+        (font . "Terminus-14")
         (left-fringe . 0)
         (right-fringe . 0)
         (menu-bar-lines . 0)
@@ -315,6 +315,17 @@
    (let ((ix (read-from-minibuffer "index: ")))
    (select-window-index (string-to-number ix)))))
 
+(global-set-key (kbd "M-g 0") (lambda () (interactive) (select-window-index 0)))
+(global-set-key (kbd "M-g 1") (lambda () (interactive) (select-window-index 1)))
+(global-set-key (kbd "M-g 2") (lambda () (interactive) (select-window-index 2)))
+(global-set-key (kbd "M-g 3") (lambda () (interactive) (select-window-index 3)))
+(global-set-key (kbd "M-g 4") (lambda () (interactive) (select-window-index 4)))
+(global-set-key (kbd "M-g 5") (lambda () (interactive) (select-window-index 5)))
+(global-set-key (kbd "M-g 6") (lambda () (interactive) (select-window-index 6)))
+(global-set-key (kbd "M-g 7") (lambda () (interactive) (select-window-index 7)))
+(global-set-key (kbd "M-g 8") (lambda () (interactive) (select-window-index 8)))
+(global-set-key (kbd "M-g 9") (lambda () (interactive) (select-window-index 9)))
+
 (global-set-key
  (kbd "C-x \\")
  (lambda () (interactive)
@@ -351,11 +362,13 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(column-number-mode t)
  '(jabber-account-list (quote (("jdoyle@allstontrading.com" (:network-server . "jabber-ch-01") (:connection-type . ssl)))))
  '(jabber-alert-presence-hooks (quote (jabber-presence-tmux)))
  '(mew-imap-inbox-folder "/home/jdoyle/AllstonGmail/INBOX")
  '(mew-mailbox-type (quote mbox))
- '(mew-thread-indent-strings ["┣" "┗" "┃" " "]))
+ '(mew-thread-indent-strings ["┣" "┗" "┃" " "])
+ '(tool-bar-mode nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -370,4 +383,13 @@
  '(jabber-roster-user-error ((t nil)))
  '(jabber-roster-user-offline ((t nil)))
  '(jabber-roster-user-online ((t (:foreground "dark orange" :slant normal :weight bold))))
- '(jabber-roster-user-xa ((t nil))))
+ '(jabber-roster-user-xa ((t nil)))
+ '(mode-line ((t (:box (:line-width -1 :color "red" :style released-button)))))
+ '(mode-line-inactive ((t (:inherit mode-line :box (:line-width -1 :color "grey75" :style released-button)))))
+ '(vertical-border ((((type x) (class color) (supports :foreground "black" :background "dark green")) (:inherit mode-line-inactive)))))
+
+
+;; (progn
+;;   (kill-buffer "*sbe_fix*")
+;;   (call-process "/home/jdoyle/projects/py_pinnacle/sbe_fix_template_to_wireshark.py"  nil "*sbe_fix*" nil "/home/jdoyle/Downloads/templates_FixBinary.xml")
+;;   (switch-to-buffer "*sbe_fix*"))
