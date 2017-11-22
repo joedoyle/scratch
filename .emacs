@@ -35,8 +35,14 @@
 (setq c-style-variables-are-local-p t)
 (setq max-specpdl-size 10000)
 (setq max-lisp-eval-depth 2000)
+(setq large-file-warning-threshold nil)
 
 (add-to-list 'load-path "~/lisp")
+
+(add-to-list 'load-path "/home/jdoyle/.emacs.d/ace-jump-mode")
+(require 'ace-jump-mode)
+(define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
+
 ;; (add-to-list 'load-path "~/lisp/ecb_new")
 
 ;; (load-file "~/src/cedet-bzr/trunk/cedet-devel-load.el")

@@ -10,7 +10,7 @@ if [ -f /etc/bashrc ]; then
 fi
 
 if [ -f ~/.git-completion.bash ]; then
-    . ~/.git-completion.sh
+    . ~/.git-completion.bash
 fi
 
 if [ -f ~/.git-prompt.sh ]; then
