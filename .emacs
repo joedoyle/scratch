@@ -63,10 +63,13 @@
         (require 'package)
         (package-initialize)
         (add-to-list 'package-archives
-                     '("melpa" . "http://melpa.milkbox.net/packages/")
+                     '("melpa" . "http://melpa.org/packages/")
                      'APPEND))
 
 (require 'xcscope "/usr/share/cscope/xcscope.el" t)
+
+(require 'uniquify)
+(setq uniquify-buffer-name-style 'post-forward uniquify-separator ":")
 
 ;(setq load-path (append load-path '("/net/leo/workspace1/jdoyle/xref/emacs")))
 ;(load "xrefin.el")
@@ -80,6 +83,10 @@
 
 (setq Info-default-directory-list
       (cons "~/emacs-20.4/info" Info-default-directory-list))
+
+(defun generate-buffer ()
+  (interactive)
+  (switch-to-buffer (make-temp-name "scratch")))
 
 ;(load "vc-custom.elc")
 ;(load "vc-hooks.elc")
@@ -299,7 +306,7 @@
      nil 'fullscreen
      (when (not (frame-parameter nil 'fullscreen)) 'fullboth))))
 
-(global-set-key [f11] 'toggle-fullscreen)
+;;(global-set-key [f11] 'toggle-fullscreen)
 (global-set-key (kbd "C-x C-r") (lambda () (interactive) (revert-buffer t t)))
 
 (defun select-window-index (ix)
@@ -363,17 +370,74 @@
   (interactive)
   (let ((trade-info (car (cdr (assoc (completing-read "Trade: " bfc-trade-list) bfc-trade-list)))))
     (find-file (format "/ssh:orion@%s:%s" (car (cdr trade-info)) (car (cdr (cdr trade-info)))))))
+
+;; (setq allston-gmail-activity "ok now 5")
+
+;; (add-to-list 'global-mode-string 'allston-gmail-activity 'APPEND)
+;; ((t jabber-activity-mode-string) allston-gmail-activity)
+
+;; (put 'allston-gmail-activity 'risky-local-variable t)
+;; t
+
+;; (force-mode-line-update t)
+
+;; (defun without-last(l)
+;;   (reverse (cdr (reverse l))))
+;; without-last
+
+;; (setq global-mode-string (without-last global-mode-string))
+
+
+;; (setq allston-sticky-inbox-cnt 0)
+;; (setq allston-prev-inbox-cnt 0)
+;; (setq allston-sticky-bitbucket-cnt 0)
+;; (setq allston-prev-bitbucket-cnt 0)
+
+;; (defun new-email-counts ()
+
+;;   (let ((inbox-cnt (length (file-expand-wildcards "/home/jdoyle/AllstonGmail/INBOX/new/*")))
+;;         (bitbucket-cnt (length (file-expand-wildcards "/home/jdoyle/AllstonGmail/Bitbucket/new/*")))
+;;         (first t)
+;;         )
+;;     (when (or (eq allston-sticky-inbox-cnt 0) (< inbox-cnt allston-prev-inbox-cnt)) (setq allston-sticky-inbox-cnt inbox-cnt))
+;;     (setq allston-prev-inbox-cnt inbox-cnt)
+;;     (setq allston-prev-bitbucket-cnt bitbucket-cnt)
+;;     (setq allston-gmail-activity " ")
+;;     (when (> (- inbox-cnt allston-sticky-inbox-cnt) 0) (setq allston-gmail-activity (concat allston-gmail-activity  (propertize (concat "Inbox:" (number-to-string (- inbox-cnt allston-sticky-inbox-cnt))) 'face 'jabber-activity-face)  ))
+;;           (setq first nil))
+;;     )
+;;   (force-mode-line-update t)
+;;   )
+;; new-email-counts
+
+;; (new-email-counts)
+
+;; (run-with-idle-timer 1 t 'new-email-counts)
+;; [nil 0 1 0 t new-email-counts nil idle 0]
+
+;; (defvar allston-gmail-activity (propertize "hello!" 'face 'jabber-activity-face :risky))
+;; allston-gmail-activity
+
+;; (setq allston-gmail-activity (propertize "hello!" 'face 'jabber-activity-face))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(column-number-mode t)
- '(jabber-account-list (quote (("jdoyle@allstontrading.com" (:network-server . "jabber-ch-01") (:connection-type . ssl)))))
+ '(jabber-account-list
+   (quote
+    (("jdoyle@allstontrading.com"
+      (:network-server . "openfire-t8-w01.allstontrading.com")
+      (:connection-type . starttls)))))
  '(jabber-alert-presence-hooks (quote (jabber-presence-tmux)))
  '(mew-imap-inbox-folder "/home/jdoyle/AllstonGmail/INBOX")
  '(mew-mailbox-type (quote mbox))
  '(mew-thread-indent-strings ["┣" "┗" "┃" " "])
+ '(package-selected-packages
+   (quote
+    (magit wanderlust w3 org mew jabber icicles hexrgb fuzzy-match csv-mode color-theme)))
  '(tool-bar-mode nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

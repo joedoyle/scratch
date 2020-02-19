@@ -4,6 +4,9 @@
 (put 'allston-gmail-activity 'risky-local-variable t)
 
 (force-mode-line-update t)
+t
+
+
 
 (defun without-last(l)
   (reverse (cdr (reverse l))))
@@ -19,12 +22,21 @@
 
   (let ((inbox-cnt (length (file-expand-wildcards "/home/jdoyle/AllstonGmail/INBOX/new/*")))
         (bitbucket-cnt (length (file-expand-wildcards "/home/jdoyle/AllstonGmail/Bitbucket/new/*")))
+        (first t)
         )
     (when (or (eq allston-sticky-inbox-cnt 0) (< inbox-cnt allston-prev-inbox-cnt)) (setq allston-sticky-inbox-cnt inbox-cnt))
+    (when (or (eq allston-sticky-bitbucket-cnt 0) (< bitbucket-cnt allston-prev-bitbucket-cnt)) (setq allston-sticky-bitbucket-cnt bitbucket-cnt))
     (setq allston-prev-inbox-cnt inbox-cnt)
     (setq allston-prev-bitbucket-cnt bitbucket-cnt)
     (setq allston-gmail-activity " ")
-    (when (> (- inbox-cnt allston-sticky-inbox-cnt) 0) (setq allston-gmail-activity (concat allston-gmail-activity  (propertize (concat "Inbox:" (number-to-string (- inbox-cnt allston-sticky-inbox-cnt))) 'face 'jabber-activity-face)  )))
+    (when
+        (> (- inbox-cnt allston-sticky-inbox-cnt) 0)
+      (setq allston-gmail-activity (concat allston-gmail-activity  (propertize (concat "Inbox:" (number-to-string (- inbox-cnt allston-sticky-inbox-cnt))) 'face 'jabber-activity-face)  ))
+      (setq first nil))
+    (when (> (- bitbucket-cnt allston-sticky-bitbucket-cnt) 0)
+      (when (not first) (setq allston-gmail-activity (concat allston-gmail-activity " ")))
+      (setq allston-gmail-activity (concat allston-gmail-activity  (propertize (concat "Bitbucket:" (number-to-string (- bitbucket-cnt allston-sticky-bitbucket-cnt))) 'face 'jabber-activity-face)  ))
+      (setq first nil))
     )
   (force-mode-line-update t)
   )
