@@ -350,7 +350,7 @@
             (delete-window up-win))))))
 
 (global-set-key (kbd "C-c s d") 'semantic-ia-fast-jump)
-
+(global-set-key (kbd "C-s") 'swiper)
 
 (defun bfc-build-trade-list ()
   (interactive)
@@ -425,6 +425,10 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(alert-user-configuration
+   (quote
+    ((((:category . "slack"))
+      slack-mode-line-style nil))))
  '(column-number-mode t)
  '(jabber-account-list
    (quote
@@ -437,7 +441,7 @@
  '(mew-thread-indent-strings ["┣" "┗" "┃" " "])
  '(package-selected-packages
    (quote
-    (magit wanderlust w3 org mew jabber icicles hexrgb fuzzy-match csv-mode color-theme)))
+    (slack swiper magit wanderlust w3 org mew jabber icicles hexrgb fuzzy-match csv-mode color-theme)))
  '(tool-bar-mode nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
