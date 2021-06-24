@@ -1,35 +1,28 @@
 (package-initialize)
-(require 'exwm-randr)
- (setq exwm-randr-workspace-output-plist '(0 "DP-1" 1 "DP-2-8"))
-(add-hook 'exwm-randr-screen-change-hook
-          (lambda ()
-            (start-process-shell-command
-             "xrandr" nil "xrandr --output DP-1 --right-of DP-2 --auto")))
-(exwm-randr-enable)
 
-(setq exwm-input-global-keys
-      `(([?\s-r] . exwm-reset)
-        ([?\s-w] . exwm-workspace-switch)
-        ([?\M-o] . ace-window)
-	(,(kbd "S-<left>") . previous-multiframe-window)
-	(,(kbd "S-<right>") . next-multiframe-window)
-        ([?\s-&] . (lambda (command)
-                     (interactive (list (read-shell-command "$ ")))
-                     (start-process-shell-command command nil command)))
-        ,@(mapcar (lambda (i)
-                    `(,(kbd (format "s-%d" i)) .
-                      (lambda ()
-                        (interactive)
-                        (exwm-workspace-switch-create ,i))))
-                  (number-sequence 0 9))))
+;; (setq exwm-input-global-keys
+;;       `(([?\s-r] . exwm-reset)
+;;         ([?\s-w] . exwm-workspace-switch)
+;;         ([?\M-o] . ace-window)
+;; 	(,(kbd "S-<left>") . previous-multiframe-window)
+;; 	(,(kbd "S-<right>") . next-multiframe-window)
+;;         ([?\s-&] . (lambda (command)
+;;                      (interactive (list (read-shell-command "$ ")))
+;;                      (start-process-shell-command command nil command)))
+;;         ,@(mapcar (lambda (i)
+;;                     `(,(kbd (format "s-%d" i)) .
+;;                       (lambda ()
+;;                         (interactive)
+;;                         (exwm-workspace-switch-create ,i))))
+;;                   (number-sequence 0 9))))
 
-(require 'exwm-config)
-(exwm-config-example)
+;;(require 'exwm-config)
+;;(exwm-config-example)
 
-(setq exwm-workspace-number 2)
+;; (setq exwm-workspace-number 2)
 
 ;;(windmove-default-keybindings)
-(add-to-list 'default-frame-alist '(alpha 85 85))
+;;(add-to-list 'default-frame-alist '(alpha 85 85))
 
 ;; start non-exwm config
 (setq inhibit-startup-message t)
@@ -40,12 +33,19 @@
 (tooltip-mode -1)
 (menu-bar-mode -1)
 (ido-mode -1)
-(setq-default make-backup-files nil)
+(setq make-backup-files nil)
+(setq-default indent-tabs-mode nil)
+(setq-default show-trailing-whitespace t)
+
 
 (global-set-key (vector (append (list 'shift) '(right)))  'next-multiframe-window)
 (global-set-key (vector (append (list 'shift) '(left)))  'previous-multiframe-window)
+(global-set-key (vector (append (list 'shift) '(up)))  'windmove-up)
+(global-set-key (vector (append (list 'shift) '(down)))  'windmove-down)
 
-(set-face-attribute 'default nil :font "Fira Code Retina" :height 150)
+;;(set-face-attribute 'default nil :font "Fira Code Retina" :height 150)
+(set-face-attribute 'default nil :font "Inconsolata" :height 130)
+
 (load-theme 'wombat)
 
 
@@ -65,8 +65,35 @@
 (ivy-mode)
 (counsel-mode)
 
-(global-set-key (kbd "M-o") 'ace-window)
+(require 'ace-jump-mode)
+(define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
 
+(global-set-key (kbd "C-s") 'swiper-isearch)
+(global-set-key (kbd "M-o") 'ace-window)
+(global-set-key (kbd "C-x C-r") (lambda () (interactive) (revert-buffer t t)))
+
+(global-set-key
+ (kbd "C-x \\")
+ (lambda () (interactive)
+   (let ((down-win (window-in-direction 'below))
+         (up-win (window-in-direction 'above)))
+     (cond ((and down-win (not (window-minibuffer-p down-win)))
+            (delete-window down-win))
+           ((and up-win (not (window-minibuffer-p up-win)))
+            (delete-window up-win))))))
+
+(defconst avesta-c++-style
+  '((c-basic-offset . 4)
+    (c-offsets-alist .
+		     ((innamespace . [0])
+		      (inline-open . 0)
+		      (substatement-open . 0))))
+  "Avesta c++ style")
+
+;;(add-hook 'c-mode-hook '(lambda() (c-set-offset innamespace 0)))
+(add-hook 'c-mode-common-hook
+	  '(lambda()
+	     (c-add-style "avesta" avesta-c++-style t)))
 
 ;;(use-package doom-modeline
 ;;  :ensure t
