@@ -1,5 +1,6 @@
 (package-initialize)
 
+
 ;; (setq exwm-input-global-keys
 ;;       `(([?\s-r] . exwm-reset)
 ;;         ([?\s-w] . exwm-workspace-switch)
