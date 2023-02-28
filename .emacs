@@ -1,8 +1,8 @@
-(add-to-list 'load-path "/apps/avestafs1/jdoyle/.emacs.d/repos/xelb/")
-(add-to-list 'load-path "/apps/avestafs1/jdoyle/.emacs.d/repos/exwm/")
+(add-to-list 'load-path "/home/jdoyle/.emacs.d/repos/xelb/")
+(add-to-list 'load-path "/home/jdoyle/.emacs.d/repos/exwm/")
 
 (require 'exwm-randr)
- (setq exwm-randr-workspace-output-plist '(0 "DisplayPort-5" 1 "DisplayPort-3" 2 "DisplayPort-4"))
+(setq exwm-randr-workspace-output-plist '(0 "DP-0" 1 "DP-2"))
 
 (exwm-randr-enable)
 
@@ -26,18 +26,19 @@
 (require 'exwm-config)
 (exwm-config-example)
 
-(load "/apps/avestafs1/jdoyle/repos/scratch/desktop.el")
+(load "/home/jdoyle/scratch/desktop.el")
 
 ;;(require 'exwm-config)
 ;;(exwm-config-example)
-(setq exwm-workspace-number 3)
+;;(setq exwm-workspace-number 3)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages (quote (csv-mode ace-window ace-jump-mode exwm))))
+ '(package-selected-packages
+   '(ccls lsp-mode lsp-ui clang-format magit csv-mode ace-window ace-jump-mode exwm)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

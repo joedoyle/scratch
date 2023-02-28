@@ -45,7 +45,8 @@
 (global-set-key (vector (append (list 'shift) '(down)))  'windmove-down)
 
 ;;(set-face-attribute 'default nil :font "Fira Code Retina" :height 150)
-(set-face-attribute 'default nil :font "Inconsolata" :height 130)
+(set-face-attribute 'default nil :font "DejaVu Sans Mono" :height 130)
+;;(set-frame-font "Inconsolata")
 
 (load-theme 'wombat)
 
@@ -56,7 +57,7 @@
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
 			 ("org" . "https://orgmode.org/elpa/")
 			 ("elpa" . "https://elpa.gnu.org/packages/")))
-(package-initialize)
+
 (unless package-archive-contents
   (package-refresh-contents))
 
@@ -83,32 +84,55 @@
            ((and up-win (not (window-minibuffer-p up-win)))
             (delete-window up-win))))))
 
-(defconst avesta-c++-style
+(setq-default tab-width 4)
+
+(add-to-list 'auto-mode-alist '("\\.ipp\\'" . c++-mode))
+
+(defconst spartak-c++-style
   '((c-basic-offset . 4)
     (c-offsets-alist .
 		     ((innamespace . [0])
 		      (inline-open . 0)
 		      (substatement-open . 0))))
-  "Avesta c++ style")
+  "Spartak c++ style")
 
-;;(add-hook 'c-mode-hook '(lambda() (c-set-offset innamespace 0)))
+;; ;;(add-hook 'c-mode-hook '(lambda() (c-set-offset innamespace 0)))
 (add-hook 'c-mode-common-hook
 	  '(lambda()
-	     (c-add-style "avesta" avesta-c++-style t)))
+	     (c-add-style "spartak" spartak-c++-style t)))
 
-;;(use-package doom-modeline
-;;  :ensure t
-;;  :init (doom-modeline-mode 1))
+;; handy elisp snippets
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages (quote (exwm))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+;; (dolist (buf (buffer-list (current-buffer)))
+;;   (with-current-buffer buf
+;;         (when (string= "c++-mode" major-mode)
+;;           (setq tab-width 4))))
+
+;; ;;(use-package doom-modeline
+;; ;;  :ensure t
+;; ;;  :init (doom-modeline-mode 1))
+
+;; (custom-set-variables
+;;  ;; custom-set-variables was added by Custom.
+;;  ;; If you edit it by hand, you could mess it up, so be careful.
+;;  ;; Your init file should contain only one such instance.
+;;  ;; If there is more than one, they won't work right.
+;;  '(package-selected-packages (quote (exwm))))
+;; (custom-set-faces
+;;  ;; custom-set-faces was added by Custom.
+;;  ;; If you edit it by hand, you could mess it up, so be careful.
+;;  ;; Your init file should contain only one such instance.
+;;  ;; If there is more than one, they won't work right.
+;;  )
+;; (custom-set-variables
+;;  ;; custom-set-variables was added by Custom.
+;;  ;; If you edit it by hand, you could mess it up, so be careful.
+;;  ;; Your init file should contain only one such instance.
+;;  ;; If there is more than one, they won't work right.
+;;  '(package-selected-packages '(ace-jump-mode ivy use-package)))
+;; (custom-set-faces
+;;  ;; custom-set-faces was added by Custom.
+;;  ;; If you edit it by hand, you could mess it up, so be careful.
+;;  ;; Your init file should contain only one such instance.
+;;  ;; If there is more than one, they won't work right.
+;;  )

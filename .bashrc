@@ -20,6 +20,10 @@ else
     export PS1='\w\$ '
 fi
 
+if [ -f /usr/share/bash-completion/completions/git ]; then
+    source /usr/share/bash-completion/completions/git
+fi
+
 if [ -f ~/.support_funcs.sh ]
 then
     source ~/.support_funcs.sh
@@ -34,4 +38,21 @@ shopt -s histappend
 
 export LESS=FSRX
 
-# export PATH=/opt/centos/devtoolset-3.1/root/usr/bin:${PATH}
+export PATH=/var/lib/snapd/snap/bin:${PATH}
+# more on the path? /snap/emacs/current/usr/bin
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/opt/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/opt/anaconda3/etc/profile.d/conda.sh" ]; then
+        . "/opt/anaconda3/etc/profile.d/conda.sh"
+    else
+        export PATH="/opt/anaconda3/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
+
