@@ -20,7 +20,7 @@
 ;;(require 'exwm-config)
 ;;(exwm-config-example)
 
-;; (setq exwm-workspace-number 2)
+(setq exwm-workspace-number 4)
 
 ;;(windmove-default-keybindings)
 ;;(add-to-list 'default-frame-alist '(alpha 85 85))
@@ -45,7 +45,7 @@
 (global-set-key (vector (append (list 'shift) '(down)))  'windmove-down)
 
 ;;(set-face-attribute 'default nil :font "Fira Code Retina" :height 150)
-(set-face-attribute 'default nil :font "DejaVu Sans Mono" :height 130)
+(set-face-attribute 'default nil :font "Iosevka Term" :height 80 :width 'normal)
 ;;(set-frame-font "Inconsolata")
 
 (load-theme 'wombat)
@@ -64,14 +64,42 @@
 (require 'use-package)
 (setq use-package-always-ensure t)
 
-(ivy-mode)
-(counsel-mode)
 
-(require 'ace-jump-mode)
-(define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
+(vertico-mode)
+(setq completion-styles '(orderless basic))
 
-(global-set-key (kbd "C-s") 'swiper-isearch)
-(global-set-key (kbd "M-o") 'ace-window)
+
+(require 'vertico-directory)
+(keymap-set vertico-map "DEL" 'vertico-directory-delete-char)
+
+(use-package lsp-mode :commands lsp :disabled)
+(use-package lsp-ui :commands lsp-ui-mode :disabled)
+(use-package ccls
+  :hook ((c-mode c++-mode objc-mode cuda-mode) .
+         (lambda () (require 'ccls) (lsp)))
+  :disabled)
+(setq ccls-executable "/home/jdoyle/external/ccls/Release/ccls")
+(setq ccls-args '("--log-file=/tmp/ccls.txt" "-v" "2"))
+
+(setq ediff-window-setup-function 'ediff-setup-windows-plain)
+
+;; (use-package ivy-xref
+;;   :ensure t
+;;   :init
+;;   ;; xref initialization is different in Emacs 27 - there are two different
+;;   ;; variables which can be set rather than just one
+;;   (when (>= emacs-major-version 27)
+;;     (setq xref-show-definitions-function #'ivy-xref-show-defs))
+;;   ;; Necessary in Emacs <27. In Emacs 27 it will affect all xref-based
+;;   ;; commands other than xref-find-definitions (e.g. project-find-regexp)
+;;   ;; as well
+;;   (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
+
+;;(require 'ace-jump-mode)
+;;(define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
+
+;;(global-set-key (kbd "C-s") 'swiper-isearch)
+;;(global-set-key (kbd "M-o") 'ace-window)
 (global-set-key (kbd "C-x C-r") (lambda () (interactive) (revert-buffer t t)))
 
 (global-set-key
@@ -101,12 +129,32 @@
 	  '(lambda()
 	     (c-add-style "spartak" spartak-c++-style t)))
 
-;; handy elisp snippets
+(add-hook 'python-mode-hook
+	  (lambda()
+	     (setq indent-tabs-mode t)
+	     (setq tab-width 4)
+         (setq python-indent-offset 4)))
+
+(global-set-key (kbd "C-s") 'consult-line)
+
+;; handy elisp snippets1511733770198067
 
 ;; (dolist (buf (buffer-list (current-buffer)))
 ;;   (with-current-buffer buf
 ;;         (when (string= "c++-mode" major-mode)
 ;;           (setq tab-width 4))))
+
+
+;; (use-package consult
+;;   :custom
+;;  ;; Disable preview
+;;  ;; (consult-preview-key nil)
+;;  :bind
+;;  (("C-x b" . 'consult-buffer)    ;; Switch buffer, including recentf and bookmarks
+;;   ("M-l"   . 'consult-git-grep)  ;; Search inside a project
+;;   ("M-y"   . 'consult-yank-pop)  ;; Paste by selecting the kill-ring
+;;   ("C-s"   . 'consult-line)      ;; Search current buffer, like swiper
+;;   ))
 
 ;; ;;(use-package doom-modeline
 ;; ;;  :ensure t
