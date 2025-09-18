@@ -145,16 +145,16 @@
 ;;           (setq tab-width 4))))
 
 
-;; (use-package consult
-;;   :custom
-;;  ;; Disable preview
-;;  ;; (consult-preview-key nil)
-;;  :bind
-;;  (("C-x b" . 'consult-buffer)    ;; Switch buffer, including recentf and bookmarks
-;;   ("M-l"   . 'consult-git-grep)  ;; Search inside a project
-;;   ("M-y"   . 'consult-yank-pop)  ;; Paste by selecting the kill-ring
-;;   ("C-s"   . 'consult-line)      ;; Search current buffer, like swiper
-;;   ))
+(use-package consult
+;;  :custom
+ ;; Disable preview
+ ;; (consult-preview-key nil)
+ :bind
+ (("C-x b" . 'consult-buffer)    ;; Switch buffer, including recentf and bookmarks
+  ("M-l"   . 'consult-git-grep)  ;; Search inside a project
+  ("M-y"   . 'consult-yank-pop)  ;; Paste by selecting the kill-ring
+  ("C-s"   . 'consult-line)      ;; Search current buffer, like swiper
+  ))
 
 ;; ;;(use-package doom-modeline
 ;; ;;  :ensure t

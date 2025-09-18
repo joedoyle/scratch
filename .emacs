@@ -43,7 +43,7 @@
    '("https://lobste.rs/rss" "https://news.ycombinator.com/rss" "https://feeds.arstechnica.com/arstechnica/index" "https://sachachua.com/blog/category/emacs-news/feed/" "https://cpp.libhunt.com/newsletter/feed" "https://gcc.gnu.org/mailman/subscribe/gcc-announce" "https://lwn.net/headlines/rss"
      ("https://techpowerup.com/rss/news" security second)))
  '(package-selected-packages
-   '(orderless consult vertico auth-source-xoauth2 slack elfeed ivy-gitlab ivy-xref ccls lsp-mode lsp-ui magit csv-mode exwm)))
+   '(company-coq proof-general orderless consult vertico auth-source-xoauth2 slack elfeed ivy-gitlab ivy-xref ccls lsp-mode lsp-ui magit csv-mode exwm)))
 (put 'narrow-to-region 'disabled nil)
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
